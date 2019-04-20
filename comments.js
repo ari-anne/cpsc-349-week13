@@ -25,35 +25,34 @@ function makePost(id, title, body) {
   article.find("[data-posts='title']").html(title);
   article.find("[data-posts='body']").html(body);
   article.find("[data-posts='id']").attr("value", id);
-  article.find("[data-posts='id']").attr("onClick", "toggle(this)");
+  article.find("[data-posts='id']").attr("onClick", "toggleComments(this)");
   article.find(".comments").attr("id", "comments-" + id);
 }
 
-function toggle(button) {
-  var postid = $(button).val();
+function toggleComments(button) {
+  var postid = button.value;
   var comments = $("#comments-" + postid);
-  console.log(comments);
 
-  if (comments.children().length <= 1) {
+  if (comments.children().length == 1) {
     getComments(postid);
-    comments.hidden = false;
-    comments.textContent = "Hide comments";
+    button.textContent = "Hide comments";
+  }
+
+  // hidden: https://stackoverflow.com/questions/178325/how-do-i-check-if-an-element-is-hidden-in-jquery
+  // sliding: https://www.dummies.com/web-design-development/other-web-software/showing-hiding-sliding-and-fading-elements-with-jquery/
+  if(comments.is(":hidden")) {
+    comments.slideDown();
+    button.textContent = "Hide comments";
   }
   else {
-    if (comments.hidden) {
-      comments.hidden = false;
-      comments.textContent = "Hide comments";
-    }
-    else {
-      comments.hidden = true;
-      comments.textContent = "Show comments";
-    }
+    comments.slideUp();
+    button.textContent = "Show comments";
   }
 }
 
 // get comments for specific post
 function getComments(postid) {
-  var url = "https://jsonplaceholder.typicode.com/comments?postID=" + postid;
+  var url = "https://jsonplaceholder.typicode.com/comments?postId=" + postid;
 
   fetch(url).then(response => response.json())
   .then(function (data) {
@@ -73,11 +72,12 @@ function makeComment(postid, name, email, body) {
   body = body.replace("\n", "<br>");
 
   // fill in values
-  section.find("[data-posts='body']").html(body);
+  section.find("[data-comments='body']").html(body);
   section.find("[data-comments='email']").html(name);
   section.find("[data-comments='email']").attr("href", email);
 }
 
 (function (window) {
   getPosts();
+
 })(window);
